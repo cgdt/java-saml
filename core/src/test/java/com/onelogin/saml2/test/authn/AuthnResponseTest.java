@@ -94,14 +94,14 @@ public class AuthnResponseTest {
 	 */
 	@Test
 	public void testEncryptedAssertionNokey() throws IOException, Error, XPathExpressionException, ParserConfigurationException, SAXException, SettingsException, ValidationError {
-		expectedEx.expect(SettingsException.class);
-		expectedEx.expectMessage("No private key available for decrypt, check settings");
-
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.min.properties").build();
 		String samlResponseEncoded = Util.getFileAsString("data/responses/valid_encrypted_assertion.xml.base64");
+
+		expectedEx.expect(SettingsException.class);
+		expectedEx.expectMessage("No private key available for decrypt, check settings");
 		new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
 	}
-	
+
 	/**
 	 * Tests the constructor of SamlResponse
 	 * Case test namespaces
@@ -148,7 +148,7 @@ public class AuthnResponseTest {
 	 * @throws SAXException
 	 * @throws ParserConfigurationException
 	 * @throws XPathExpressionException
-	 * 
+	 *
 	 * @see com.onelogin.saml2.authn.SamlResponse#getSAMLResponseXml
 	 */
 	@Test
@@ -224,7 +224,7 @@ public class AuthnResponseTest {
 		samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
 		assertNull(samlResponse.getNameIdFormat());
 	}
-	
+
 	/**
 	 * Tests the getNameId method of SamlResponse
 	 * Case: No NameId
@@ -235,15 +235,15 @@ public class AuthnResponseTest {
 	 */
 	@Test
 	public void testGetNameIdNoNameId() throws Exception {
-		expectedEx.expect(ValidationError.class);
-		expectedEx.expectMessage("No name id found in Document.");
-
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.my.properties").build();
 
 		settings.setWantNameId(true);
 		String samlResponseEncoded = Util.getFileAsString("data/responses/invalids/no_nameid.xml.base64");
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
-		String nameId = samlResponse.getNameId();
+
+		expectedEx.expect(ValidationError.class);
+		expectedEx.expectMessage("No name id found in Document.");
+		samlResponse.getNameId();
 	}
 
 	/**
@@ -256,58 +256,58 @@ public class AuthnResponseTest {
 	 */
 	@Test
 	public void testGetNameIdWrongSPNameQualifier() throws Exception {
-		expectedEx.expect(ValidationError.class);
-		expectedEx.expectMessage("The SPNameQualifier value mistmatch the SP entityID value.");
-
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.my.properties").build();
 
 		settings.setWantNameId(true);
 		String samlResponseEncoded = Util.getFileAsString("data/responses/invalids/wrong_spnamequalifier.xml.base64");
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
-		String nameId = samlResponse.getNameId();
+
+		expectedEx.expect(ValidationError.class);
+		expectedEx.expectMessage("The SPNameQualifier value mistmatch the SP entityID value.");
+		samlResponse.getNameId();
 	}
-	
+
 	/**
 	 * Tests the getNameId method of SamlResponse
 	 * Case: Not able to get the NameIdData due no private key to decrypt
 	 *
 	 * @throws Exception
-	 * 
+	 *
 	 * @see com.onelogin.saml2.authn.SamlResponse#getNameId
 	 */
 	@Test
 	public void testGetNameIdNoKey() throws Exception {
-		expectedEx.expect(SettingsException.class);
-		expectedEx.expectMessage("Key is required in order to decrypt the NameID");
-		
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.min.properties").build();
 		String samlResponseEncoded = Util.getFileAsString("data/responses/response_encrypted_nameid.xml.base64");
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
-		String nameId = samlResponse.getNameId();
+
+		expectedEx.expect(SettingsException.class);
+		expectedEx.expectMessage("Key is required in order to decrypt the NameID");
+		samlResponse.getNameId();
 	}
 
 	/**
 	 * Tests the getNameId method of SamlResponse
-	 * Case: The NameID value is empty 
+	 * Case: The NameID value is empty
 	 *
 	 * @throws Exception
-	 * 
+	 *
 	 * @see com.onelogin.saml2.authn.SamlResponse#getNameId
 	 */
 	@Test
 	public void testGetNameIdEmptyNameIDValue() throws Exception {
-		expectedEx.expect(ValidationError.class);
-		expectedEx.expectMessage("An empty NameID value found");
-		
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.min.properties").build();
 		String samlResponseEncoded = Util.getFileAsString("data/responses/invalids/empty_nameid.xml.base64");
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
 		String nameId = samlResponse.getNameId();
 		assertTrue(nameId.isEmpty());
-		
+
 		settings.setStrict(true);
 		SamlResponse samlResponse2 = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
-		String nameId2 = samlResponse2.getNameId();
+
+		expectedEx.expect(ValidationError.class);
+		expectedEx.expectMessage("An empty NameID value found");
+		samlResponse2.getNameId();
 	}
 
 	/**
@@ -315,18 +315,18 @@ public class AuthnResponseTest {
 	 * Case: Not able to get the NameIdData due no nameID inside the EncryptedID
 	 *
 	 * @throws Exception
-	 * 
+	 *
 	 * @see com.onelogin.saml2.authn.SamlResponse#getNameId
 	 */
 	@Test
 	public void testGetNameIdWrongEncryptedData() throws Exception {
-		expectedEx.expect(Exception.class);
-		expectedEx.expectMessage("Not able to decrypt the EncryptedID and get a NameID");
-
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.my.properties").build();
 		String samlResponseEncoded = Util.getFileAsString("data/responses/invalids/response_encrypted_subconfirm_as_nameid.xml.base64");
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
-		String nameId = samlResponse.getNameId();
+
+		expectedEx.expect(Exception.class);
+		expectedEx.expectMessage("Not able to decrypt the EncryptedID and get a NameID");
+		samlResponse.getNameId();
 	}
 
 	/**
@@ -356,7 +356,7 @@ public class AuthnResponseTest {
 		assertThat(NameIdDataStr, containsString("Format=urn:oasis:names:tc:SAML:2.0:nameid-format:transient"));
 		assertThat(NameIdDataStr, containsString("Value=_68392312d490db6d355555cfbbd8ec95d746516f60"));
 		assertThat(NameIdDataStr, containsString("SPNameQualifier=http://localhost:8080/java-saml-jspsample/metadata.jsp"));
-		
+
 		settings.setWantNameId(false);
 		samlResponseEncoded = Util.getFileAsString("data/responses/invalids/no_nameid.xml.base64");
 		samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
@@ -389,15 +389,15 @@ public class AuthnResponseTest {
 	 */
 	@Test
 	public void testGetNameIdDataNoNameId() throws Exception {
-		expectedEx.expect(ValidationError.class);
-		expectedEx.expectMessage("No name id found in Document");
-
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.my.properties").build();
 		settings.setWantNameId(true);
 
 		String samlResponseEncoded = Util.getFileAsString("data/responses/invalids/no_nameid.xml.base64");
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
-		HashMap<String, String> nameIdData = samlResponse.getNameIdData();
+
+		expectedEx.expect(ValidationError.class);
+		expectedEx.expectMessage("No name id found in Document");
+		samlResponse.getNameIdData();
 	}
 
 	/**
@@ -410,30 +410,27 @@ public class AuthnResponseTest {
 	 */
 	@Test
 	public void testGetNameIdDataWrongSPNameQualifier() throws Exception {
-		expectedEx.expect(ValidationError.class);
-		expectedEx.expectMessage("The SPNameQualifier value mistmatch the SP entityID value.");
-
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.my.properties").build();
 
 		settings.setWantNameId(true);
 		String samlResponseEncoded = Util.getFileAsString("data/responses/invalids/wrong_spnamequalifier.xml.base64");
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
-		HashMap<String, String> nameIdData = samlResponse.getNameIdData();
+
+		expectedEx.expect(ValidationError.class);
+		expectedEx.expectMessage("The SPNameQualifier value mistmatch the SP entityID value.");
+		samlResponse.getNameIdData();
 	}
 
 	/**
 	 * Tests the getNameIdData method of SamlResponse
-	 * Case: The NameID value is empty 
+	 * Case: The NameID value is empty
 	 *
 	 * @throws Exception
-	 * 
+	 *
 	 * @see com.onelogin.saml2.authn.SamlResponse#getNameIdData
 	 */
 	@Test
 	public void testGetNameIdDataEmptyNameIDValue() throws Exception {
-		expectedEx.expect(ValidationError.class);
-		expectedEx.expectMessage("An empty NameID value found");
-
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.min.properties").build();
 		String samlResponseEncoded = Util.getFileAsString("data/responses/invalids/empty_nameid.xml.base64");
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
@@ -442,9 +439,12 @@ public class AuthnResponseTest {
 
 		settings.setStrict(true);
 		SamlResponse samlResponse2 = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
-		HashMap<String, String> nameIdData2 = samlResponse2.getNameIdData();
+
+		expectedEx.expect(ValidationError.class);
+		expectedEx.expectMessage("An empty NameID value found");
+		samlResponse2.getNameIdData();
 	}
-	
+
 	/**
 	 * Tests the checkOneCondition method of SamlResponse
 	 *
@@ -465,7 +465,7 @@ public class AuthnResponseTest {
 		String samlResponseEncoded = Util.getFileAsString("data/responses/invalids/no_conditions.xml.base64");
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
 		assertFalse(samlResponse.checkOneCondition());
-		
+
 		samlResponseEncoded = Util.getFileAsString("data/responses/valid_response.xml.base64");
 		samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
 		assertTrue(samlResponse.checkOneCondition());
@@ -491,7 +491,7 @@ public class AuthnResponseTest {
 		String samlResponseEncoded = Util.getFileAsString("data/responses/invalids/no_authnstatement.xml.base64");
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
 		assertFalse(samlResponse.checkOneAuthnStatement());
-		
+
 		samlResponseEncoded = Util.getFileAsString("data/responses/valid_response.xml.base64");
 		samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
 		assertTrue(samlResponse.checkOneAuthnStatement());
@@ -539,13 +539,13 @@ public class AuthnResponseTest {
 	 */
 	@Test
 	public void testCheckStatusResponder() throws IOException, Error, XPathExpressionException, ParserConfigurationException, SAXException, SettingsException, ValidationError {
-		expectedEx.expect(ValidationError.class);
-		expectedEx.expectMessage("The status code of the Response was not Success, was urn:oasis:names:tc:SAML:2.0:status:Responder");
-
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.my.properties").build();
 
 		String samlResponseEncoded = Util.getFileAsString("data/responses/invalids/status_code_responder.xml.base64");
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
+
+		expectedEx.expect(ValidationError.class);
+		expectedEx.expectMessage("The status code of the Response was not Success, was urn:oasis:names:tc:SAML:2.0:status:Responder");
 		samlResponse.checkStatus();
 	}
 
@@ -565,13 +565,13 @@ public class AuthnResponseTest {
 	 */
 	@Test
 	public void testCheckStatusResponderMsg() throws IOException, Error, XPathExpressionException, ParserConfigurationException, SAXException, SettingsException, ValidationError {
-		expectedEx.expect(ValidationError.class);
-		expectedEx.expectMessage("The status code of the Response was not Success, was urn:oasis:names:tc:SAML:2.0:status:Responder -> something_is_wrong");
-
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.my.properties").build();
 
 		String samlResponseEncoded = Util.getFileAsString("data/responses/invalids/status_code_responder_and_msg.xml.base64");
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
+
+		expectedEx.expect(ValidationError.class);
+		expectedEx.expectMessage("The status code of the Response was not Success, was urn:oasis:names:tc:SAML:2.0:status:Responder -> something_is_wrong");
 		samlResponse.checkStatus();
 	}
 
@@ -591,13 +591,13 @@ public class AuthnResponseTest {
 	 */
 	@Test
 	public void testCheckStatusNoStatus() throws IOException, Error, XPathExpressionException, ParserConfigurationException, SAXException, SettingsException, ValidationError {
-		expectedEx.expect(ValidationError.class);
-		expectedEx.expectMessage("Missing Status on response");
-
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.my.properties").build();
 
 		String samlResponseEncoded = Util.getFileAsString("data/responses/invalids/no_status.xml.base64");
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
+
+		expectedEx.expect(ValidationError.class);
+		expectedEx.expectMessage("Missing Status on response");
 		samlResponse.checkStatus();
 	}
 
@@ -617,13 +617,13 @@ public class AuthnResponseTest {
 	 */
 	@Test
 	public void testCheckStatusNoStatusCode() throws IOException, Error, XPathExpressionException, ParserConfigurationException, SAXException, SettingsException, ValidationError {
-		expectedEx.expect(ValidationError.class);
-		expectedEx.expectMessage("Missing Status Code on response");
-
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.my.properties").build();
 
 		String samlResponseEncoded = Util.getFileAsString("data/responses/invalids/no_status_code.xml.base64");
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
+
+		expectedEx.expect(ValidationError.class);
+		expectedEx.expectMessage("Missing Status Code on response");
 		samlResponse.checkStatus();
 	}
 
@@ -643,25 +643,25 @@ public class AuthnResponseTest {
 	@Test
 	public void testGetStatus() throws IOException, Error, XPathExpressionException, ParserConfigurationException, SAXException, SettingsException, ValidationError {
 		String samlResponseEncoded = Util.getFileAsString("data/responses/response1.xml.base64");
-		Document samlResponseDoc = Util.loadXML(new String(Util.base64decoder(samlResponseEncoded))); 
+		Document samlResponseDoc = Util.loadXML(new String(Util.base64decoder(samlResponseEncoded)));
 		SamlResponseStatus status = SamlResponse.getStatus(samlResponseDoc);
 		assertEquals(Constants.STATUS_SUCCESS, status.getStatusCode());
 		assertNull(status.getStatusMessage());
 
 		samlResponseEncoded = Util.getFileAsString("data/responses/valid_encrypted_assertion.xml.base64");
-		samlResponseDoc = Util.loadXML(new String(Util.base64decoder(samlResponseEncoded))); 
+		samlResponseDoc = Util.loadXML(new String(Util.base64decoder(samlResponseEncoded)));
 		status = SamlResponse.getStatus(samlResponseDoc);
 		assertEquals(Constants.STATUS_SUCCESS, status.getStatusCode());
 		assertNull(status.getStatusMessage());
 
 		samlResponseEncoded = Util.getFileAsString("data/responses/invalids/status_code_responder.xml.base64");
-		samlResponseDoc = Util.loadXML(new String(Util.base64decoder(samlResponseEncoded))); 
+		samlResponseDoc = Util.loadXML(new String(Util.base64decoder(samlResponseEncoded)));
 		status = SamlResponse.getStatus(samlResponseDoc);
 		assertEquals(Constants.STATUS_RESPONDER, status.getStatusCode());
 		assertNull(status.getStatusMessage());
 
 		samlResponseEncoded = Util.getFileAsString("data/responses/invalids/status_code_responder_and_msg.xml.base64");
-		samlResponseDoc = Util.loadXML(new String(Util.base64decoder(samlResponseEncoded))); 
+		samlResponseDoc = Util.loadXML(new String(Util.base64decoder(samlResponseEncoded)));
 		status = SamlResponse.getStatus(samlResponseDoc);
 		assertEquals(Constants.STATUS_RESPONDER, status.getStatusCode());
 		assertEquals("something_is_wrong", status.getStatusMessage());
@@ -768,15 +768,15 @@ public class AuthnResponseTest {
 	 */
 	@Test
 	public void testGetIssuersNoInAssertion() throws IOException, Error, XPathExpressionException, ParserConfigurationException, SAXException, SettingsException, ValidationError {
-		expectedEx.expect(ValidationError.class);
-		expectedEx.expectMessage("Issuer of the Assertion not found or multiple.");
-
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.my.properties").build();
 		String samlResponseEncoded = Util.getFileAsString("data/responses/invalids/no_issuer_assertion.xml.base64");
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
-		List<String> issuers = samlResponse.getIssuers();
+
+		expectedEx.expect(ValidationError.class);
+		expectedEx.expectMessage("Issuer of the Assertion not found or multiple.");
+		samlResponse.getIssuers();
 	}
-	
+
 	/**
 	 * Tests the getSessionIndex method of SamlResponse
 	 *
@@ -897,33 +897,32 @@ public class AuthnResponseTest {
 	 */
 	@Test
 	public void testGetAttributesDuplicatedNames() throws IOException, Error, XPathExpressionException, ParserConfigurationException, SAXException, SettingsException, ValidationError {
-		expectedEx.expect(ValidationError.class);
-		expectedEx.expectMessage("Found an Attribute element with duplicated Name");
-
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.my.properties").build();
 		String samlResponseEncoded = Util.getFileAsString("data/responses/invalids/duplicated_attributes.xml.base64");
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
 
-		HashMap<String, List<String>> attributes = samlResponse.getAttributes();
+		expectedEx.expect(ValidationError.class);
+		expectedEx.expectMessage("Found an Attribute element with duplicated Name");
+		samlResponse.getAttributes();
 	}
-	
+
 	/**
 	 * Tests the isValid method of SamlResponse
 	 *
-	 * @throws Exception 
+	 * @throws Exception
 	 *
 	 * @see com.onelogin.saml2.authn.SamlResponse#isValid
 	 */
 	@Test
 	public void testOnlyRetrieveAssertionWithIDThatMatchesSignatureReference() throws Exception {
-		expectedEx.expect(ValidationError.class);
-		expectedEx.expectMessage("SAML Response could not be processed");
-
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.my.properties").build();
 		String samlResponseEncoded = Util.getFileAsString("data/responses/invalids/wrapped_response_2.xml.base64");
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
 
 		String nameID = samlResponse.getNameId();
+
+		expectedEx.expect(ValidationError.class); // TODO check
+		expectedEx.expectMessage("SAML Response could not be processed");
 		assertFalse(samlResponse.isValid());
 		assertFalse("root@example.com".equals(nameID));
 	}
@@ -941,7 +940,7 @@ public class AuthnResponseTest {
 		String samlResponseEncoded = Util.getFileAsString("data/responses/response4.xml.base64");
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
 
-		assertEquals("test@onelogin.com", samlResponse.getNameId());		
+		assertEquals("test@onelogin.com", samlResponse.getNameId());
 		assertFalse(samlResponse.isValid());
 		assertEquals("SAML Response must contain 1 Assertion.", samlResponse.getError());
 	}
@@ -1104,7 +1103,7 @@ public class AuthnResponseTest {
 
 		samlResponseEncoded = Util.getFileAsString("data/responses/invalids/no_time_condition.xml.base64");
 		samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
-		assertTrue(samlResponse.validateTimestamps());		
+		assertTrue(samlResponse.validateTimestamps());
 	}
 
 	/**
@@ -1120,17 +1119,17 @@ public class AuthnResponseTest {
 	 *
 	 * @see com.onelogin.saml2.authn.SamlResponse#validateTimestamps
 	 */
-	@Test 
+	@Test
 	public void testValidateTimestampsExpired() throws ValidationError, XPathExpressionException, ParserConfigurationException, SAXException, IOException, SettingsException, Error {
-		expectedEx.expect(ValidationError.class);
-		expectedEx.expectMessage("Could not validate timestamp: expired. Check system clock.");
-
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.my.properties").build();
 		String samlResponseEncoded = Util.getFileAsString("data/responses/expired_response.xml.base64");
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
+
+		expectedEx.expect(ValidationError.class);
+		expectedEx.expectMessage("Could not validate timestamp: expired. Check system clock.");
 		samlResponse.validateTimestamps();
 	}
-	
+
 	/**
 	 * Tests the validateTimestamps method of SamlResponse
 	 *
@@ -1146,12 +1145,12 @@ public class AuthnResponseTest {
 	 */
 	@Test
 	public void testValidateTimestampsNA() throws ValidationError, XPathExpressionException, ParserConfigurationException, SAXException, IOException, SettingsException, Error {
-		expectedEx.expect(ValidationError.class);
-		expectedEx.expectMessage("Could not validate timestamp: expired. Check system clock.");
-
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.my.properties").build();
 		String samlResponseEncoded = Util.getFileAsString("data/responses/invalids/not_after_failed.xml.base64");
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
+
+		expectedEx.expect(ValidationError.class);
+		expectedEx.expectMessage("Could not validate timestamp: expired. Check system clock.");
 		samlResponse.validateTimestamps();
 	}
 
@@ -1170,12 +1169,12 @@ public class AuthnResponseTest {
 	 */
 	@Test
 	public void testValidateTimestampsNB() throws ValidationError, XPathExpressionException, ParserConfigurationException, SAXException, IOException, SettingsException, Error {
-		expectedEx.expect(ValidationError.class);
-		expectedEx.expectMessage("Could not validate timestamp: not yet valid. Check system clock.");
-
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.my.properties").build();
 		String samlResponseEncoded = Util.getFileAsString("data/responses/invalids/not_before_failed.xml.base64");
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
+
+		expectedEx.expect(ValidationError.class);
+		expectedEx.expectMessage("Could not validate timestamp: not yet valid. Check system clock.");
 		samlResponse.validateTimestamps();
 	}
 
@@ -1228,7 +1227,7 @@ public class AuthnResponseTest {
 		assertFalse(samlResponse.isValid());
 		assertEquals("The URL of the current host was not established", samlResponse.getError());
 	}
-	
+
 	/**
 	 * Tests the isValid method of SamlResponse
 	 * Case: invalid version
@@ -1389,14 +1388,14 @@ public class AuthnResponseTest {
 	 */
 	@Test
 	public void testIsValidWrongEncryptedID() throws Exception {
-		expectedEx.expect(Exception.class);
-		expectedEx.expectMessage("Not able to decrypt the EncryptedID and get a NameID");
-
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.my.properties").build();
 		String samlResponseEncoded = Util.getFileAsString("data/responses/invalids/response_encrypted_subconfirm_as_nameid.xml.base64");
 		settings.setStrict(false);
 		settings.setWantAssertionsSigned(false);
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
+
+		expectedEx.expect(Exception.class); // TODO check
+		expectedEx.expectMessage("Not able to decrypt the EncryptedID and get a NameID");
 		assertTrue(samlResponse.isValid());
 		String nameId = samlResponse.getNameId();
 	}
@@ -1411,17 +1410,17 @@ public class AuthnResponseTest {
 	 */
 	@Test
 	public void testIsValidWrongSPNameQualifier() throws Exception {
-		expectedEx.expect(ValidationError.class);
-		expectedEx.expectMessage("The SPNameQualifier value mistmatch the SP entityID value.");
-
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.my.properties").build();
 		String samlResponseEncoded = Util.getFileAsString("data/responses/invalids/wrong_spnamequalifier.xml.base64");
 		settings.setStrict(true);
 		settings.setWantAssertionsSigned(false);
+
+		expectedEx.expect(ValidationError.class); // TODO check
+		expectedEx.expectMessage("The SPNameQualifier value mistmatch the SP entityID value.");
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
 		String nameId = samlResponse.getNameId();
 	}
-	
+
 	/**
 	 * Tests the isValid method of SamlResponse
 	 * Case: invalid xml
@@ -1524,7 +1523,7 @@ public class AuthnResponseTest {
 		assertFalse(samlResponse.isValid());
 		assertEquals("The response has an empty Destination value", samlResponse.getError());
 	}
-	
+
 	/**
 	 * Tests the isValid method of SamlResponse
 	 * Case: invalid Conditions
@@ -1640,7 +1639,7 @@ public class AuthnResponseTest {
 		samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
 		assertFalse(samlResponse.isValid());
 		assertEquals("No Signature found. SAML Response rejected", samlResponse.getError());
-		
+
 	}
 
 	/**
@@ -1877,7 +1876,7 @@ public class AuthnResponseTest {
 		assertTrue(samlResponse.isValid());
 
 		assertFalse(samlResponse.isValid("invalidRequestId"));
-		assertThat(samlResponse.getError(), containsString("The InResponseTo of the Response"));		
+		assertThat(samlResponse.getError(), containsString("The InResponseTo of the Response"));
 	}
 
 	@Test
@@ -1929,7 +1928,7 @@ public class AuthnResponseTest {
 		settings.setStrict(false);
 
 		settings.setWantAssertionsSigned(false);
-		settings.setWantMessagesSigned(false);		
+		settings.setWantMessagesSigned(false);
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
 		assertFalse(samlResponse.isValid());
 		assertEquals("No Signature found. SAML Response rejected", samlResponse.getError());
@@ -1955,7 +1954,7 @@ public class AuthnResponseTest {
 		settings.setStrict(true);
 
 		settings.setWantAssertionsSigned(false);
-		settings.setWantMessagesSigned(false);		
+		settings.setWantMessagesSigned(false);
 		samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
 		assertFalse(samlResponse.isValid());
 		assertEquals("No Signature found. SAML Response rejected", samlResponse.getError());
@@ -2281,7 +2280,7 @@ public class AuthnResponseTest {
 
 		settings.setStrict(true);
 		samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
-		assertTrue(samlResponse.isValid());		
+		assertTrue(samlResponse.isValid());
 	}
 
 	/**
@@ -2334,13 +2333,13 @@ public class AuthnResponseTest {
 	 */
 	@Test
 	public void testProcessSignedElementsInvalidSignElem() throws IOException, Error, XPathExpressionException, ParserConfigurationException, SAXException, SettingsException, ValidationError {
-		expectedEx.expect(ValidationError.class);
-		expectedEx.expectMessage("Invalid Signature Element {urn:oasis:names:tc:SAML:2.0:assertion}Subject SAML Response rejected");
-
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.my.properties").build();
 		String samlResponseEncoded = Util.getFileAsString("data/responses/invalids/wrong_signed_element.xml.base64");
 
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
+
+		expectedEx.expect(ValidationError.class);
+		expectedEx.expectMessage("Invalid Signature Element {urn:oasis:names:tc:SAML:2.0:assertion}Subject SAML Response rejected");
 		samlResponse.processSignedElements();
 	}
 
@@ -2360,16 +2359,16 @@ public class AuthnResponseTest {
 	 */
 	@Test
 	public void testProcessSignedElementsInvalidSignElem2() throws IOException, Error, XPathExpressionException, ParserConfigurationException, SAXException, SettingsException, ValidationError {
-		expectedEx.expect(ValidationError.class);
-		expectedEx.expectMessage("Invalid Signature Element {urn:oasis:names:tc:SAML:2.0:assertion}Subject SAML Response rejected");
-
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.my.properties").build();
 		String samlResponseEncoded = Util.getFileAsString("data/responses/invalids/wrong_signed_element2.xml.base64");
 
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
+
+		expectedEx.expect(ValidationError.class);
+		expectedEx.expectMessage("Invalid Signature Element {urn:oasis:names:tc:SAML:2.0:assertion}Subject SAML Response rejected");
 		samlResponse.processSignedElements();
 	}
-	
+
 	/**
 	 * Tests the processSignedElements method of SamlResponse
 	 * Case: invalid id
@@ -2386,13 +2385,13 @@ public class AuthnResponseTest {
 	 */
 	@Test
 	public void testProcessSignedElementsNoId() throws IOException, Error, XPathExpressionException, ParserConfigurationException, SAXException, SettingsException, ValidationError {
-		expectedEx.expect(ValidationError.class);
-		expectedEx.expectMessage("Signed Element must contain an ID. SAML Response rejected");
-
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.my.properties").build();
 		String samlResponseEncoded = Util.getFileAsString("data/responses/invalids/no_assertion_id.xml.base64");
 
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
+
+		expectedEx.expect(ValidationError.class);
+		expectedEx.expectMessage("Signed Element must contain an ID. SAML Response rejected");
 		samlResponse.processSignedElements();
 	}
 
@@ -2412,16 +2411,16 @@ public class AuthnResponseTest {
 	 */
 	@Test
 	public void testProcessSignedElementsDuplicateRef() throws IOException, Error, XPathExpressionException, ParserConfigurationException, SAXException, SettingsException, ValidationError {
-		expectedEx.expect(ValidationError.class);
-		expectedEx.expectMessage("Found an invalid Signed Element. SAML Response rejected");
-
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.my.properties").build();
 		String samlResponseEncoded = Util.getFileAsString("data/responses/invalids/duplicate_reference_uri.xml.base64");
 
 		SamlResponse samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
+
+		expectedEx.expect(ValidationError.class);
+		expectedEx.expectMessage("Found an invalid Signed Element. SAML Response rejected");
 		samlResponse.processSignedElements();
 	}
-	
+
 
 	/**
 	 * Tests the isValid method of SamlResponse
@@ -2438,7 +2437,7 @@ public class AuthnResponseTest {
 	 * @see com.onelogin.saml2.authn.SamlResponse#isValid
 	 */
 	@Test
-	public void testIsInValidSign() throws IOException, Error, XPathExpressionException, ParserConfigurationException, SAXException, SettingsException, ValidationError { 
+	public void testIsInValidSign() throws IOException, Error, XPathExpressionException, ParserConfigurationException, SAXException, SettingsException, ValidationError {
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.min.properties").build();
 		settings.setStrict(true);
 		String samlResponseEncoded = Util.getFileAsString("data/responses/unsigned_response.xml.base64");
@@ -2473,12 +2472,12 @@ public class AuthnResponseTest {
 		samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
 		assertFalse(samlResponse.isValid());
 		assertEquals("Invalid Signature Element {urn:oasis:names:tc:SAML:2.0:assertion}Subject SAML Response rejected", samlResponse.getError());
-		
+
 		samlResponseEncoded = Util.getFileAsString("data/responses/invalids/duplicate_reference_uri.xml.base64");
 		samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
 		assertFalse(samlResponse.isValid());
 		assertEquals("Found an invalid Signed Element. SAML Response rejected", samlResponse.getError());
-		
+
 		samlResponseEncoded = Util.getFileAsString("data/responses/invalids/no_assertion_id.xml.base64");
 		samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
 		assertFalse(samlResponse.isValid());
@@ -2487,7 +2486,7 @@ public class AuthnResponseTest {
 		samlResponseEncoded = Util.getFileAsString("data/responses/invalids/bad_reference.xml.base64");
 		samlResponse = new SamlResponse(settings, newHttpRequest(samlResponseEncoded));
 		assertFalse(samlResponse.isValid());
-		assertEquals("Found an invalid Signed Element. SAML Response rejected", samlResponse.getError());	
+		assertEquals("Found an invalid Signed Element. SAML Response rejected", samlResponse.getError());
 	}
 
 	/**
@@ -2570,7 +2569,7 @@ public class AuthnResponseTest {
 		}
 		assertFalse(samlResponse.validateSignedElements(signedElements));
 	}
-	
+
 	/**
 	 * Tests the isValid method of SamlResponse
 	 * Case: valid response that has no reference URI
@@ -2600,13 +2599,13 @@ public class AuthnResponseTest {
 		settings.setStrict(true);
 		samlResponse = new SamlResponse(settings, newHttpRequest(requestURL, samlResponseEncoded));
 		assertTrue(samlResponse.isValid());
-		
+
 		HashMap<String, List<String>> attributes = samlResponse.getAttributes();
 		assertFalse(attributes.isEmpty());
 		String attrName = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress";
 		assertEquals("saml@user.com", attributes.get(attrName).get(0));
 	}
-	
+
 	/**
 	 * Tests the getError method of SamlResponse
 	 *

@@ -873,7 +873,7 @@ public class AuthTest {
 		auth.processResponse();
 		assertFalse(auth.isAuthenticated());
 
-		expectedEx.expect(SettingsException.class);
+		expectedEx.expect(SettingsException.class); // TODO check
 		expectedEx.expectMessage("Invalid settings: idp_cert_not_found_and_required");
 		auth.getNameId();
 	}
@@ -895,7 +895,7 @@ public class AuthTest {
 
 		Saml2Settings settings = new SettingsBuilder().fromFile("config/config.my.properties").build();
 		Auth auth = new Auth(settings, request, response);
-		
+
 		expectedEx.expect(ValidationError.class); // TODO check
 		expectedEx.expectMessage("SAML Response could not be processed");
 		auth.processResponse();
@@ -1130,7 +1130,7 @@ public class AuthTest {
 		Auth auth = new Auth(settings, request, response);
 		String relayState = "http://localhost:8080/expected.jsp";
 
-		expectedEx.expect(SettingsException.class);
+		expectedEx.expect(SettingsException.class); // TODO check
 		expectedEx.expectMessage("Invalid settings: sp_cert_not_found_and_required");
 		auth.login(relayState);
 	}
@@ -1320,7 +1320,7 @@ public class AuthTest {
 		Auth auth = new Auth(settings, request, response);
 		String relayState = "http://localhost:8080/expected.jsp";
 
-		expectedEx.expect(SettingsException.class);
+		expectedEx.expect(SettingsException.class); // TODO check
 		expectedEx.expectMessage("Invalid settings: sp_cert_not_found_and_required");
 		auth.logout(relayState);
 	}
